@@ -3,9 +3,34 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35828.75 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "eShop.Identity", "eShop.Identity", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Basket", "Basket", "{1AE1EBDA-173D-4976-A1BC-DACEF706800E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Order", "Order", "{0790BF7E-6191-4E47-86C7-5F31A1957A6F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Catalog", "Catalog", "{7C407B4F-AF1C-4063-A620-DAE69E0D845A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{9D0764AC-1045-4CF0-9C24-4E6E380E4493}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eShop.Identity.API", "eShop.Identity.API\eShop.Identity.API.csproj", "{50BA325F-78C6-4748-880C-7C9E1EF3EF90}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{50BA325F-78C6-4748-880C-7C9E1EF3EF90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50BA325F-78C6-4748-880C-7C9E1EF3EF90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50BA325F-78C6-4748-880C-7C9E1EF3EF90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50BA325F-78C6-4748-880C-7C9E1EF3EF90}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{50BA325F-78C6-4748-880C-7C9E1EF3EF90} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FA171092-34E0-4525-A66F-9CFA1775AB01}
