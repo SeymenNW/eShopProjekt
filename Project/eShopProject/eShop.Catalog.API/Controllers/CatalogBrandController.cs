@@ -2,14 +2,17 @@
 
 namespace eShop.Catalog.API.Controllers
 {
+
     [ApiController]
-    [Route("/api/catalog")]
-    public class CatalogController : Controller
+    [Route("api/catalog-brands")]
+    public class CatalogBrandController : Controller
     {
         [HttpGet]
-        public IActionResult Get()
+        public async Task<IActionResult> GetCatalogBrands()
         {
             return Ok("Adil skal købe mad");
         }
+
+     
     }
 }
