@@ -1,0 +1,51 @@
+services:
+  basket.api:
+    build:
+      context: .
+      dockerfile: eShop.Basket.API/Dockerfile
+    container_name: basket.api
+    depends_on:
+      - basket.db
+      - rabbitmq
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Docker"
+      ConnectionStrings__BasketDb: "Host=basket.db;Port=5432;Database=BasketDb;Username=basket;Password=basket"
+      Jwt__Key: "SuperSecretJwtKeyForBasket123!"
+      Jwt__Issuer: "eShopGateway"
+      RABBITMQ_HOST: "rabbitmq"
+    ports:
+      - "8080:8080"
+    networks:
+      - basketnet
+
+  basket.db:
+    image: postgres:16
+    container_name: basket.db
+    restart: always
+    environment:
+      POSTGRES_USER: basket
+      POSTGRES_PASSWORD: basket
+      POSTGRES_DB: BasketDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - basketdata:/var/lib/postgresql/data
+    networks:
+      - basketnet
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"     # App port
+      - "15672:15672"   # Web UI
+    networks:
+      - basketnet
+
+volumes:
+  basketdata:
+
+networks:
+  basketnet:
+    driver: bridge
