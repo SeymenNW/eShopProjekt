@@ -1,4 +1,6 @@
 using eShop.Basket.Infrastructure.Data;
+using eShop.Basket.Infrastructure.EventBus;
+using eShop.Basket.Domain.Events; // <-- flyttet op (vigtigt)
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -6,11 +8,13 @@ using System.Text;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
-// --- Load configuration (inkluder Docker) ---
+
+// --- Load configuration ---
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
+
 // --- Serilog setup ---
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -20,13 +24,13 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// Add services to the container
+// --- Swagger & Controllers ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// --- JWT Authentication setup ---
-var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing");
+// --- JWT Authentication (deaktiveret midlertidigt) ---
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "SuperSecretJwtKeyForBasket123!";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "eShopGateway";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -48,12 +52,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddDbContext<BasketDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("BasketDb")));
 
+// --- EventBus (RabbitMQ) ---
+builder.Services.AddSingleton<IEventBus>(sp =>
+{
+    var host = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
+    var user = builder.Configuration["RabbitMQ:User"] ?? "guest";
+    var pass = builder.Configuration["RabbitMQ:Password"] ?? "guest";
+    return new RabbitMqEventBus(host, user, pass);
+});
+
 // --- Health checks ---
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// --- Swagger & middleware ---
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
 {
     app.UseSwagger();
@@ -61,15 +74,18 @@ if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docke
 }
 
 app.UseHttpsRedirection();
-
-// Activate authentication + authorization
-//app.UseAuthentication();
-//app.UseAuthorization();
+// app.UseAuthentication();
+// app.UseAuthorization();
 
 app.MapControllers();
-
-// Health endpoint
 app.MapHealthChecks("/health");
+
+// --- Test subscriber (kan fjernes senere) ---
+var eventBus = app.Services.GetRequiredService<IEventBus>();
+eventBus.Subscribe<BasketCheckedOutIntegrationEvent>("basket.checkedout", evt =>
+{
+    Console.WriteLine($"[Subscriber] Basket {evt.BasketId} checked out by {evt.CustomerId} with total {evt.Total}");
+});
 
 app.Run();
 
