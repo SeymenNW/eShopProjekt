@@ -19,6 +19,12 @@ public class BasketController : ControllerBase
         _context = context;
     }
 
+    [HttpGet]
+    public IActionResult Get()
+    {
+        return Ok("Basket API is running... Adam");
+    }
+
     // GET api/basket/{id}
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ShoppingBasket>> GetBasket(Guid id)

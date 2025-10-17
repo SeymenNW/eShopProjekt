@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace eShop.Identity.API.Identity
 {
-    public class AppDbContext : IdentityDbContext<ApplicationUser>
+    public class AppDbContext : IdentityDbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)

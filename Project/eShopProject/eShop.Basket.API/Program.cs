@@ -68,6 +68,7 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
+
 // Health endpoint
 app.MapHealthChecks("/health");
 
