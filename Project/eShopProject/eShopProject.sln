@@ -28,9 +28,15 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eShop.Basket.Infrastructure", "eShop.Basket.Infrastructure\eShop.Basket.Infrastructure.csproj", "{84ED5E14-C0A8-4463-8675-EB445CB87EF9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eShop.Basket.API.Tests", "eShop.Basket.API.Tests\eShop.Basket.API.Tests.csproj", "{89ABB71C-31BA-48FF-A6E6-5D34E9BB1DA6}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway API", "Gateway API", "{F065A6C3-AB74-4440-97E1-E2AA74FC9166}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway.Api", "Gateway.Api\Gateway.Api.csproj", "{04737D57-D65A-4E25-A600-5AC92A709BBE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
