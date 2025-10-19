@@ -44,14 +44,14 @@ namespace eShop.Basket.Infrastructure.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("ShoppingBasketId")
+                    b.Property<Guid>("ShoppingBasketId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ShoppingBasketId");
 
-                    b.ToTable("BasketItems", (string)null);
+                    b.ToTable("basketitems", (string)null);
                 });
 
             modelBuilder.Entity("eShop.Basket.Domain.Entities.ShoppingBasket", b =>
@@ -66,7 +66,7 @@ namespace eShop.Basket.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Baskets", (string)null);
+                    b.ToTable("baskets", (string)null);
                 });
 
             modelBuilder.Entity("eShop.Basket.Domain.Entities.BasketItem", b =>
@@ -74,7 +74,8 @@ namespace eShop.Basket.Infrastructure.Migrations
                     b.HasOne("eShop.Basket.Domain.Entities.ShoppingBasket", null)
                         .WithMany("Items")
                         .HasForeignKey("ShoppingBasketId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("eShop.Basket.Domain.Entities.ShoppingBasket", b =>

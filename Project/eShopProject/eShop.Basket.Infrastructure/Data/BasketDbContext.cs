@@ -14,16 +14,19 @@ public class BasketDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<ShoppingBasket>()
-            .ToTable("Baskets")
-            .HasMany(b => b.Items)
-            .WithOne()
-            .OnDelete(DeleteBehavior.Cascade);
+            .ToTable("baskets")
+            .HasKey(b => b.Id);
 
         modelBuilder.Entity<BasketItem>()
-            .ToTable("BasketItems")
+            .ToTable("basketitems")
             .HasKey(i => i.Id);
 
-        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<ShoppingBasket>()
+            .HasMany(b => b.Items)
+            .WithOne()                                  // ingen navigation tilbage
+            .HasForeignKey(i => i.ShoppingBasketId)     // ← eksplicit FK
+            .OnDelete(DeleteBehavior.Cascade);
     }
+
 
 }

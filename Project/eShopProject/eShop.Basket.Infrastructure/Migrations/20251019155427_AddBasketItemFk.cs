@@ -7,13 +7,13 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace eShop.Basket.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitBasketDb : Migration
+    public partial class AddBasketItemFk : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Baskets",
+                name: "baskets",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -21,11 +21,11 @@ namespace eShop.Basket.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Baskets", x => x.Id);
+                    table.PrimaryKey("PK_baskets", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "BasketItems",
+                name: "basketitems",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -34,21 +34,22 @@ namespace eShop.Basket.Infrastructure.Migrations
                     ProductName = table.Column<string>(type: "text", nullable: false),
                     Price = table.Column<decimal>(type: "numeric", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
-                    ShoppingBasketId = table.Column<Guid>(type: "uuid", nullable: true)
+                    ShoppingBasketId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BasketItems", x => x.Id);
+                    table.PrimaryKey("PK_basketitems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BasketItems_Baskets_ShoppingBasketId",
+                        name: "FK_basketitems_baskets_ShoppingBasketId",
                         column: x => x.ShoppingBasketId,
-                        principalTable: "Baskets",
-                        principalColumn: "Id");
+                        principalTable: "baskets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BasketItems_ShoppingBasketId",
-                table: "BasketItems",
+                name: "IX_basketitems_ShoppingBasketId",
+                table: "basketitems",
                 column: "ShoppingBasketId");
         }
 
@@ -56,10 +57,10 @@ namespace eShop.Basket.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BasketItems");
+                name: "basketitems");
 
             migrationBuilder.DropTable(
-                name: "Baskets");
+                name: "baskets");
         }
     }
 }

@@ -1,9 +1,6 @@
-﻿using eShop.Basket.Domain.Entities;
-using eShop.Basket.Infrastructure.Data;
-using eShop.Basket.Infrastructure.EventBus;
-using eShop.Basket.Domain.Events;
+﻿using eShop.Basket.Application.DTOs;
+using eShop.Basket.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace eShop.Basket.API.Controllers;
 
@@ -11,55 +8,42 @@ namespace eShop.Basket.API.Controllers;
 [Route("api/[controller]")]
 public class BasketController : ControllerBase
 {
-    private readonly BasketDbContext _context;
-    private readonly IEventBus _eventBus;
+    private readonly IBasketService _service;
 
-    private const string BasketCheckedOutQueue = "basket.checkedout";
-
-    public BasketController(BasketDbContext context, IEventBus eventBus)
+    public BasketController(IBasketService service)
     {
-        _context = context;
-        _eventBus = eventBus;
+        _service = service;
     }
 
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ShoppingBasket>> GetBasket(Guid id)
+    [HttpGet("{customerId}")]
+    public async Task<ActionResult<BasketDto?>> GetBasket(string customerId)
     {
-        var basket = await _context.Baskets
-            .Include(b => b.Items)
-            .FirstOrDefaultAsync(b => b.Id == id);
-
-        return basket == null ? NotFound() : Ok(basket);
+        var basket = await _service.GetAsync(customerId);
+        return basket is null ? NotFound() : Ok(basket);
     }
 
     [HttpPost]
-    public async Task<ActionResult<ShoppingBasket>> CreateBasket([FromBody] ShoppingBasket basket)
+    public async Task<ActionResult> UpsertBasket([FromBody] BasketUpdateRequest request)
     {
-        basket.Id = Guid.NewGuid();
-        _context.Baskets.Add(basket);
-        await _context.SaveChangesAsync();
-
-        var @event = new BasketCheckedOutIntegrationEvent(
-            basket.Id,
-            basket.CustomerId,
-            basket.TotalPrice
-        );
-
-        _eventBus.Publish(BasketCheckedOutQueue, @event);
-        Console.WriteLine($"[Publish] BasketCheckedOut event sent for Basket {@event.BasketId}");
-
-        return CreatedAtAction(nameof(GetBasket), new { id = basket.Id }, basket);
+        await _service.UpsertAsync(request.CustomerId, request.Items);
+        return Ok();
     }
 
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteBasket(Guid id)
+    [HttpDelete("{customerId}")]
+    public async Task<ActionResult> ClearBasket(string customerId)
     {
-        var basket = await _context.Baskets.FindAsync(id);
-        if (basket == null)
-            return NotFound();
-
-        _context.Baskets.Remove(basket);
-        await _context.SaveChangesAsync();
+        await _service.ClearAsync(customerId);
         return NoContent();
     }
+
+    [HttpPost("checkout")]
+    public async Task<ActionResult> Checkout([FromBody] CheckoutRequest request)
+    {
+        await _service.CheckoutAsync(request.CustomerId);
+        return Accepted();
+    }
 }
+
+// Request DTOs
+public record BasketUpdateRequest(string CustomerId, IEnumerable<BasketItemDto> Items);
+public record CheckoutRequest(string CustomerId);

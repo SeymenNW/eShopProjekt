@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Serilog;
+using eShop.Basket.Application.Interfaces;
+using eShop.Basket.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,7 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IBasketService, BasketService>();
 
 // --- JWT Authentication (deaktiveret midlertidigt) ---
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "SuperSecretJwtKeyForBasket123!";
@@ -55,11 +58,12 @@ builder.Services.AddDbContext<BasketDbContext>(options =>
 // --- EventBus (RabbitMQ) ---
 builder.Services.AddSingleton<IEventBus>(sp =>
 {
-    var host = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
-    var user = builder.Configuration["RabbitMQ:User"] ?? "guest";
-    var pass = builder.Configuration["RabbitMQ:Password"] ?? "guest";
+    var host = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+    var user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "guest";
+    var pass = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "guest";
     return new RabbitMqEventBus(host, user, pass);
 });
+
 
 // --- Health checks ---
 builder.Services.AddHealthChecks();
