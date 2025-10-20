@@ -4,13 +4,13 @@ namespace eShop.Identity.API.Controllers
 {
 
     [ApiController]
-    [Route("/api/identity")]
+    [Route("/api/[controller]")]
     public class IdentityController : Controller
     {
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("Adil skal rejse hjem");
+            return Ok("Identity API is running... Adam");
         }
     }
 }

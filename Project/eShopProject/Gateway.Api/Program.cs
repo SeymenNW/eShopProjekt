@@ -12,6 +12,8 @@ namespace Gateway.Api
 
             var app = builder.Build();
 
+            app.MapGet("/", () => "Gateway API is running...");
+
             app.MapReverseProxy();
 
             app.Run();
