@@ -3,13 +3,13 @@
 namespace eShop.Catalog.API.Controllers
 {
     [ApiController]
-    [Route("/api/catalog")]
+    [Route("/api/[controller]")]
     public class CatalogController : Controller
     {
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("Adil skal købe mad");
+            return Ok("Catalog API is running... Adam");
         }
     }
 }
