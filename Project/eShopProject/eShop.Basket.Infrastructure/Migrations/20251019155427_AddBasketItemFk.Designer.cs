@@ -12,8 +12,8 @@ using eShop.Basket.Infrastructure.Data;
 namespace eShop.Basket.Infrastructure.Migrations
 {
     [DbContext(typeof(BasketDbContext))]
-    [Migration("20251015134420_InitBasketDb")]
-    partial class InitBasketDb
+    [Migration("20251019155427_AddBasketItemFk")]
+    partial class AddBasketItemFk
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,14 +47,14 @@ namespace eShop.Basket.Infrastructure.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("ShoppingBasketId")
+                    b.Property<Guid>("ShoppingBasketId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ShoppingBasketId");
 
-                    b.ToTable("BasketItems", (string)null);
+                    b.ToTable("basketitems", (string)null);
                 });
 
             modelBuilder.Entity("eShop.Basket.Domain.Entities.ShoppingBasket", b =>
@@ -69,14 +69,16 @@ namespace eShop.Basket.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Baskets", (string)null);
+                    b.ToTable("baskets", (string)null);
                 });
 
             modelBuilder.Entity("eShop.Basket.Domain.Entities.BasketItem", b =>
                 {
                     b.HasOne("eShop.Basket.Domain.Entities.ShoppingBasket", null)
                         .WithMany("Items")
-                        .HasForeignKey("ShoppingBasketId");
+                        .HasForeignKey("ShoppingBasketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("eShop.Basket.Domain.Entities.ShoppingBasket", b =>

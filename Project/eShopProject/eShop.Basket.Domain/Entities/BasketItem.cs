@@ -7,6 +7,8 @@ public class BasketItem
     public string ProductName { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public int Quantity { get; set; }
+    public Guid ShoppingBasketId { get; set; }
+
 
     public BasketItem(string productId, string productName, decimal price, int quantity)
     {

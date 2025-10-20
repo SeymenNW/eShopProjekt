@@ -11,4 +11,5 @@ RUN dotnet publish "eShop.Basket.API/eShop.Basket.API.csproj" -c Release -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
+ENV ASPNETCORE_ENVIRONMENT=Docker
 ENTRYPOINT ["dotnet", "eShop.Basket.API.dll"]
