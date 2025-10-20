@@ -38,6 +38,8 @@ public class BasketController : ControllerBase
         return Ok();
     }
 
+
+
     [HttpDelete("{customerId}")]
     public async Task<ActionResult> ClearBasket(string customerId)
     {
