@@ -3,7 +3,7 @@ using eShop.Basket.Application.Interfaces;
 using eShop.Basket.Domain.Entities;
 using eShop.Basket.Domain.Events;
 using eShop.Basket.Infrastructure.Data;
-using eShop.Basket.Infrastructure.EventBus;
+using eShop.BuildingBlocks.EventBus;
 using Microsoft.EntityFrameworkCore;
 
 namespace eShop.Basket.Application.Services;

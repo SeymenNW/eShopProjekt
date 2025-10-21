@@ -1,5 +1,5 @@
 using eShop.Basket.Infrastructure.Data;
-using eShop.Basket.Infrastructure.EventBus;
+using eShop.BuildingBlocks.EventBus;
 using eShop.Basket.Domain.Events; // <-- flyttet op (vigtigt)
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
