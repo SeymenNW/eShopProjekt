@@ -8,9 +8,15 @@ namespace eShop.Identity.API.Controllers
     public class IdentityController : Controller
     {
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult Get()  
         {
             return Ok("Identity API is running... Adam");
+        }
+
+        [HttpGet("login")]
+        public IActionResult GetView()
+        {
+            return Redirect("/Identity/Account/Login");
         }
     }
 }
