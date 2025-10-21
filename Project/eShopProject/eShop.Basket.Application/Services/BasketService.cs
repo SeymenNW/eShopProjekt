@@ -1,7 +1,7 @@
 ﻿using eShop.Basket.Application.DTOs;
 using eShop.Basket.Application.Interfaces;
 using eShop.Basket.Domain.Entities;
-using eShop.Basket.Domain.Events;
+using eShop.BuildingBlocks.EventBus.Events;
 using eShop.Basket.Infrastructure.Data;
 using eShop.BuildingBlocks.EventBus;
 using Microsoft.EntityFrameworkCore;

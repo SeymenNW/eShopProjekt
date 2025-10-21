@@ -1,6 +1,6 @@
 using eShop.Basket.Infrastructure.Data;
 using eShop.BuildingBlocks.EventBus;
-using eShop.Basket.Domain.Events; // <-- flyttet op (vigtigt)
+using eShop.BuildingBlocks.EventBus.Events;// <-- flyttet op (vigtigt)
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
