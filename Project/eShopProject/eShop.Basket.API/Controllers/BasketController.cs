@@ -15,17 +15,14 @@ public class BasketController : ControllerBase
         _service = service;
     }
 
-    [HttpGet("{customerId}")]
-    public async Task<ActionResult<BasketDto?>> GetBasket(string customerId)
     [HttpGet]
     public IActionResult Get()
     {
         return Ok("Basket API is running... Adam");
     }
 
-    // GET api/basket/{id}
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ShoppingBasket>> GetBasket(Guid id)
+    [HttpGet("{customerId}")]
+    public async Task<ActionResult<BasketDto?>> GetBasket(string customerId)
     {
         var basket = await _service.GetAsync(customerId);
         return basket is null ? NotFound() : Ok(basket);
