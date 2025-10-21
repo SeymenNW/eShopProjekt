@@ -17,15 +17,6 @@ public class BasketController : ControllerBase
 
     [HttpGet("{customerId}")]
     public async Task<ActionResult<BasketDto?>> GetBasket(string customerId)
-    [HttpGet]
-    public IActionResult Get()
-    {
-        return Ok("Basket API is running... Adam");
-    }
-
-    // GET api/basket/{id}
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ShoppingBasket>> GetBasket(Guid id)
     {
         var basket = await _service.GetAsync(customerId);
         return basket is null ? NotFound() : Ok(basket);
