@@ -48,6 +48,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicApi", "eShopOnWeb-Mon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "eShopOnWeb-Monolith\src\Web\Web.csproj", "{6EE121D2-B717-E4CF-F6E7-B5B66ABB5893}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Domain", "OrderService.Domain\OrderService.Domain.csproj", "{B1821471-194D-4462-8F14-1B86617458B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Infrastructure", "OrderService.Infrastructure\OrderService.Infrastructure.csproj", "{2165F021-E13F-45E8-90CA-98CA46A618BA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B1821471-194D-4462-8F14-1B86617458B6} = {B1821471-194D-4462-8F14-1B86617458B6}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Api", "OrderService.Api\OrderService.Api.csproj", "{97BAF035-B992-4811-84D7-2055D69A269A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService.Domain.Tests", "OrderService.Domain.Tests\OrderService.Domain.Tests.csproj", "{60E7A68B-19D8-4E9C-88E9-01B6BE9B9D4F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
