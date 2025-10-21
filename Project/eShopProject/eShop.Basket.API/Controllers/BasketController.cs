@@ -15,11 +15,12 @@ public class BasketController : ControllerBase
         _service = service;
     }
 
-    [HttpGet]
-    public IActionResult Get()
-    {
-        return Ok("Basket API is running... Adam");
-    }
+    //[HttpGet]
+    //public IActionResult Get()
+    //{
+    //    return Ok("Basket API is running... Adam");
+    //}
+
 
     [HttpGet("{customerId}")]
     public async Task<ActionResult<BasketDto?>> GetBasket(string customerId)
