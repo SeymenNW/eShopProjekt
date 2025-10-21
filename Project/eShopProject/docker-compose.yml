@@ -9,6 +9,7 @@ services:
     depends_on:
       - basket-db
       - rabbitmq
+      - redis
     environment:
       ASPNETCORE_URLS: "http://+:8080"
       ASPNETCORE_ENVIRONMENT: "Docker"
@@ -18,6 +19,7 @@ services:
       RABBITMQ_HOST: "rabbitmq"
       RABBITMQ_USER: "guest"
       RABBITMQ_PASS: "guest"
+      Redis__ConnectionString: "redis:6379"
     ports:
       - "8081:8080"
     networks: [eshop]
@@ -70,6 +72,15 @@ services:
       - "5672:5672"
       - "15672:15672"
     networks: [eshop]
+
+  # Redis cache server
+  redis:
+    image: redis:7
+    container_name: basket.redis
+    ports:
+      - "6379:6379"
+    networks:
+      - eshop
 
 volumes:
   basketdata:
