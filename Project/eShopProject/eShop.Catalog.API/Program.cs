@@ -1,6 +1,8 @@
 using eShop.Catalog.API.Data;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Microsoft.AspNetCore.Connections;
+using RabbitMQ.Client;
 
 internal class Program
 {
@@ -13,6 +15,8 @@ internal class Program
         builder.Services.AddDbContext<CatalogDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+        builder.Services.AddSingleton<RabbitMQ.Client.IConnectionFactory>(_ =>
+            new ConnectionFactory { HostName = "localhost" });
 
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
