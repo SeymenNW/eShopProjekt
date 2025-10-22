@@ -14,9 +14,27 @@ namespace eShop.Identity.API.Controllers
         }
 
         [HttpGet("login")]
-        public IActionResult GetView()
+        public IActionResult GetLogin()
         {
-            return Redirect("/Identity/Account/Login");
+            return Redirect("https://localhost:7224/Identity/Account/Login");
+        }
+
+        [HttpGet("register")]
+        public IActionResult GetRegister()
+        {
+            return Redirect("https://localhost:7224/Identity/Account/Register");
+        }
+
+        [HttpGet("logout")]
+        public IActionResult GetLogout()
+        {
+            return Redirect("https://localhost:7224/Identity/Account/Logout");
+        }
+
+        [HttpGet("manage")]
+        public IActionResult GetManage()
+        {
+            return Redirect("https://localhost:7224/Identity/Account/Manage");
         }
     }
 }
