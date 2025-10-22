@@ -1,4 +1,4 @@
-﻿namespace eShop.Basket.Domain.Events;
+﻿namespace eShop.BuildingBlocks.EventBus.Events;
 
 public abstract class IntegrationEvent
 {

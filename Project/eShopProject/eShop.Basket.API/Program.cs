@@ -1,13 +1,14 @@
-using eShop.Basket.Infrastructure.Data;
-using eShop.Basket.Infrastructure.EventBus;
-using eShop.Basket.Domain.Events; // <-- flyttet op (vigtigt)
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Serilog;
 using eShop.Basket.Application.Interfaces;
 using eShop.Basket.Application.Services;
+using eShop.Basket.Infrastructure.Data;
+using eShop.Basket.Infrastructure.Repositories;
+using eShop.BuildingBlocks.EventBus;
+using eShop.BuildingBlocks.EventBus.Events;// <-- flyttet op (vigtigt)
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // --- EF Core (PostgreSQL) ---
 builder.Services.AddDbContext<BasketDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("BasketDb")));
+
+// --- Redis cache ---
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:ConnectionString"] ?? "localhost:6379";
+});
+
+// --- Basket cache service ---
+builder.Services.AddScoped<BasketCacheService>();
+
+
 
 // --- EventBus (RabbitMQ) ---
 builder.Services.AddSingleton<IEventBus>(sp =>

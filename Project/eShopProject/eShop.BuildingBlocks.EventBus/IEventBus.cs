@@ -1,4 +1,4 @@
-﻿namespace eShop.Basket.Infrastructure.EventBus;
+﻿namespace eShop.BuildingBlocks.EventBus;
 
 public interface IEventBus
 {

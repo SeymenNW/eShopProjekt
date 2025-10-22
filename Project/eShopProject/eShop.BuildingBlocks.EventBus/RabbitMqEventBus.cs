@@ -5,7 +5,8 @@ using System.Text.Json;
 using Serilog;
 
 
-namespace eShop.Basket.Infrastructure.EventBus;
+
+namespace eShop.BuildingBlocks.EventBus;
 
 public class RabbitMqEventBus : IEventBus
 {
