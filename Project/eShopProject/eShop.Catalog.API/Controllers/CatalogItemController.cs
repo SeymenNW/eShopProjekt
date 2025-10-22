@@ -12,7 +12,7 @@ namespace eShop.Catalog.API.Controllers
 
         private readonly CatalogDbContext _db;
 
-        public CatalogItemController(CatalogDbContext db )
+        public CatalogItemController(CatalogDbContext db)
         {
             _db = db;
         }
@@ -22,7 +22,7 @@ namespace eShop.Catalog.API.Controllers
         {
             try
             {
-               var itemsList = _db.Items.ToList();
+                var itemsList = _db.Items.ToList();
 
                 return Ok(itemsList);
             }
@@ -36,7 +36,15 @@ namespace eShop.Catalog.API.Controllers
         [HttpGet("{catalogItemId:int}")]
         public IActionResult GetCatalogItemById(int catalogItemId)
         {
-            return Ok("Adil skal købe mad");
+            try
+            {
+                var item = _db.Items.First(item => item.Id == catalogItemId);
+                return Ok(item);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{catalogItemId:int}")]
@@ -45,7 +53,11 @@ namespace eShop.Catalog.API.Controllers
             try
             {
                 var item = _db.Items.First(item => item.Id == catalogItemId);
-                return Ok(item);
+
+                _db.Items.Remove(item);
+                await _db.SaveChangesAsync();
+
+                return Ok(item.Name + " has been deleted.");
             }
             catch (Exception ex)
             {
@@ -66,7 +78,7 @@ namespace eShop.Catalog.API.Controllers
                     CatalogBrandId = catalogItemDto.CatalogBrandId,
                     CatalogTypeId = catalogItemDto.CatalogTypeId,
                     Name = catalogItemDto.Name,
-                    
+
                 };
                 _db.Items.Add(catalogItem);
                 await _db.SaveChangesAsync();
