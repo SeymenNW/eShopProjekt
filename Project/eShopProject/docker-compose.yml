@@ -25,26 +25,27 @@ services:
     networks: [eshop]
 
   # Catalog microservice
-  catalog-api:
-    build:
-      context: .
-      dockerfile: eShop.Catalog.API/Dockerfile
-    environment:
-      ASPNETCORE_URLS: "http://+:8080"
-    ports:
-      - "8082:8080"
-    networks: [eshop]
+  # Catalog microservice
+# catalog-api:
+#   build:
+#     context: .
+#     dockerfile: eShop.Catalog.API/Dockerfile
+#   environment:
+#     ASPNETCORE_URLS: "http://+:8080"
+#   ports:
+#     - "8082:8080"
+#   networks: [eshop]
 
-  # Gateway API
+  # ✅ Gateway API (flyttet ud på korrekt niveau)
   gateway:
     build:
       context: .
       dockerfile: Gateway.Api/Dockerfile
     environment:
       ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Docker"
     depends_on:
       - basket-api
-      - catalog-api
     ports:
       - "8080:8080"
     networks: [eshop]

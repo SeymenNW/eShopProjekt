@@ -2,12 +2,13 @@
 
 ## Overview
 Basket microservice is part of the **eShopProject** solution (UCL Semester Project).  
-It is built using **.NET 9**, **PostgreSQL**, **RabbitMQ**, and follows the **Strangler Pattern** for migration from monolith to microservices.
+It is built using **.NET 9**, **PostgreSQL**, **RabbitMQ**, and **Redis** — following the **Strangler Pattern** for migration from monolith to microservices.
 
 This service handles:
 - Shopping basket CRUD operations  
 - Checkout events via RabbitMQ  
 - Persistent data in PostgreSQL  
+- Fast caching via Redis for optimized performance  
 
 ---
 
@@ -17,8 +18,9 @@ This service handles:
 | `eShop.Basket.API` | Web API (controllers, Swagger, Serilog) |
 | `eShop.Basket.Application` | Business logic, DTOs, service interfaces |
 | `eShop.Basket.Domain` | Entities (`ShoppingBasket`, `BasketItem`) |
-| `eShop.Basket.Infrastructure` | EF Core + RabbitMQ implementation |
-| `docker-compose.yml` | Starts PostgreSQL + RabbitMQ containers |
+| `eShop.Basket.Infrastructure` | EF Core + RabbitMQ + Redis integration |
+| `eShop.BuildingBlocks.EventBus` | Shared EventBus for all microservices |
+| `docker-compose.yml` | Starts PostgreSQL, RabbitMQ, and Redis containers |
 
 ---
 
@@ -55,10 +57,10 @@ From the project root (`eShopProject` folder):
 ```
 
 The script will automatically:
-1. Start **PostgreSQL** and **RabbitMQ** using Docker  
+1. Start **PostgreSQL**, **RabbitMQ**, and **Redis** using Docker  
 2. Wait 25 seconds for initialization  
 3. Apply **EF Core migrations** (if needed)  
-4. Launch **Basket.API**  
+4. Launch **Basket.API**
 
 ✅ When you see  
 ```
@@ -82,28 +84,52 @@ Available endpoints:
 
 ---
 
-### 6️⃣ Stop Services
+### 6️⃣ View Redis Cache
+Redis automatically stores each basket as a **hash** object with keys like:  
+```
+basket:cust-1001
+basket:cust-1002
+```
+
+You can inspect data using:
+
+#### 🔹 Option 1 – Command line
+```powershell
+docker exec -it basket.redis redis-cli
+KEYS *
+HGETALL basket:cust-1001
+```
+
+#### 🔹 Option 2 – RedisInsight GUI
+Download and open **RedisInsight**  
+Connect to:
+```
+Host: localhost
+Port: 6379
+Database: 0
+```
+You will see cached baskets under keys `basket:cust-*`.
+
+---
+
+### 7️⃣ Stop Services
 When done, stop with:
 ```powershell
 Ctrl + C
 docker compose down
 ```
 
-> ⚠️ **Do not use `docker compose down -v`**, or you will delete the database volume.
+> ⚠️ **Do not use `docker compose down -v`**, or you will delete the database and Redis data volumes.
 
 ---
 
 ## 🧠 Notes for Developers
 - Database data is stored in Docker volume `basketdata` and persists between restarts.  
-- Logs are stored in `eShop.Basket.API/Logs`.  
+- Redis cache improves read performance and reduces PostgreSQL load.  
 - RabbitMQ management UI available at [http://localhost:15672](http://localhost:15672)  
   - Username: `guest`  
-  - Password: `guest`
+  - Password: `guest`  
 
----
-
-## 🧱 Next Step (Trin 13)
-We will create a shared **EventBus** library (`eShop.BuildingBlocks.EventBus`) to allow all microservices (Basket, Catalog, Order) to publish and subscribe to integration events.
 
 ---
 
