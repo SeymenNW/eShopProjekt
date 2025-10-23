@@ -37,9 +37,6 @@ namespace eShop.Catalog.API.Controllers
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(brandName))
-                    return BadRequest("Brand name is required.");
-
                 var brand = new Brand { BrandName = brandName };
 
                 _db.Brands.Add(brand);
@@ -49,7 +46,7 @@ namespace eShop.Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error: {ex.Message}");
+                return BadRequest($"{ex.Message}");
             }
         }
 

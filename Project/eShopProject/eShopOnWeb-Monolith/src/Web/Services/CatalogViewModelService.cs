@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
+using Microsoft.eShopWeb.Web.Services.V2.Models;
 using Microsoft.eShopWeb.Web.ViewModels;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Microsoft.eShopWeb.Web.Services;
 
@@ -22,8 +26,10 @@ public class CatalogViewModelService : ICatalogViewModelService
     private readonly IRepository<CatalogBrand> _brandRepository;
     private readonly IRepository<CatalogType> _typeRepository;
     private readonly IUriComposer _uriComposer;
+    private readonly HttpClient _httpClient;
 
     public CatalogViewModelService(
+        HttpClient httpClient,
         ILoggerFactory loggerFactory,
         IRepository<CatalogItem> itemRepository,
         IRepository<CatalogBrand> brandRepository,
@@ -35,6 +41,7 @@ public class CatalogViewModelService : ICatalogViewModelService
         _brandRepository = brandRepository;
         _typeRepository = typeRepository;
         _uriComposer = uriComposer;
+        _httpClient = httpClient;
     }
 
     public async Task<CatalogIndexViewModel> GetCatalogItems(int pageIndex, int itemsPage, int? brandId, int? typeId)
@@ -46,18 +53,12 @@ public class CatalogViewModelService : ICatalogViewModelService
             new CatalogFilterPaginatedSpecification(itemsPage * pageIndex, itemsPage, brandId, typeId);
 
         // the implementation below using ForEach and Count. We need a List.
-        var itemsOnPage = await _itemRepository.ListAsync(filterPaginatedSpecification);
-        var totalItems = await _itemRepository.CountAsync(filterSpecification);
+        var itemsOnPage = await GetCatalogItemsAsync();
+        var totalItems = itemsOnPage.Count;
 
         var vm = new CatalogIndexViewModel()
         {
-            CatalogItems = itemsOnPage.Select(i => new CatalogItemViewModel()
-            {
-                Id = i.Id,
-                Name = i.Name,
-                PictureUri = _uriComposer.ComposePicUri(i.PictureUri),
-                Price = i.Price
-            }).ToList(),
+            CatalogItems = itemsOnPage,
             Brands = (await GetBrands()).ToList(),
             Types = (await GetTypes()).ToList(),
             BrandFilterApplied = brandId ?? 0,
@@ -80,7 +81,7 @@ public class CatalogViewModelService : ICatalogViewModelService
     public async Task<IEnumerable<SelectListItem>> GetBrands()
     {
         _logger.LogInformation("GetBrands called.");
-        var brands = await _brandRepository.ListAsync();
+        var brands = await GetCatalogBrandsAsync();
 
         var items = brands
             .Select(brand => new SelectListItem() { Value = brand.Id.ToString(), Text = brand.Brand })
@@ -96,7 +97,7 @@ public class CatalogViewModelService : ICatalogViewModelService
     public async Task<IEnumerable<SelectListItem>> GetTypes()
     {
         _logger.LogInformation("GetTypes called.");
-        var types = await _typeRepository.ListAsync();
+        var types = await GetCatalogTypesAsync();
 
         var items = types
             .Select(type => new SelectListItem() { Value = type.Id.ToString(), Text = type.Type })
@@ -108,4 +109,95 @@ public class CatalogViewModelService : ICatalogViewModelService
 
         return items;
     }
+
+    private async Task<List<CatalogItemViewModel>> GetCatalogItemsAsync()
+    {
+        HttpResponseMessage response = await _httpClient.GetAsync("https://localhost:7167/api/catalog-items");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var content = JsonConvert.DeserializeObject<List<CatalogItemDtoMicro>>(await response.Content.ReadAsStringAsync());
+
+            List<CatalogItemViewModel> items = new();
+
+            foreach (var item in content)
+            {
+                items.Add(new CatalogItemViewModel { Name = item.Name, Id = item.Id, PictureUri = item.PictureUri, Price = item.Price });
+            }
+
+            return items;
+
+        }
+        else
+        {
+            return [];
+        }
+
+    }
+
+    private async Task<List<CatalogBrand>> GetCatalogBrandsAsync()
+    {
+        try
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync("https://localhost:7167/api/catalog-brands");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var brandItems = JsonConvert.DeserializeObject<List<CatalogBrandDtoMicro>>(await response.Content.ReadAsStringAsync());
+
+
+               List<CatalogBrand> items = new();
+
+                foreach (var item in brandItems)
+                {
+                    CatalogBrand catalogBrand = new(item.BrandName);
+                    items.Add(catalogBrand);
+                }
+
+                return items;
+
+            }
+            else
+            {
+                return [];
+            }
+        }
+        catch (Exception ex)
+        {
+            return [];
+        }
+    }
+
+    private async Task<List<CatalogType>> GetCatalogTypesAsync()
+    {
+        try
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync("https://localhost:7167/api/catalog-types");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var brandItems = JsonConvert.DeserializeObject<List<CatalogTypeDtoMicro>>(await response.Content.ReadAsStringAsync());
+
+
+                List<CatalogType> items = new();
+
+                foreach (var item in brandItems)
+                {
+                    items.Add(new CatalogType(item.TypeName));
+                }
+
+                return items;
+
+            }
+            else
+            {
+                return [];
+            }
+        }
+        catch (Exception ex)
+        {
+            return [];
+        }
+    }
+
 }
