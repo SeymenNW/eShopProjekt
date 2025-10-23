@@ -81,7 +81,7 @@ public class CatalogViewModelService : ICatalogViewModelService
     public async Task<IEnumerable<SelectListItem>> GetBrands()
     {
         _logger.LogInformation("GetBrands called.");
-        var brands = await _brandRepository.ListAsync();
+        var brands = await GetCatalogBrandsAsync();
 
         var items = brands
             .Select(brand => new SelectListItem() { Value = brand.Id.ToString(), Text = brand.Brand })
@@ -97,7 +97,7 @@ public class CatalogViewModelService : ICatalogViewModelService
     public async Task<IEnumerable<SelectListItem>> GetTypes()
     {
         _logger.LogInformation("GetTypes called.");
-        var types = await _typeRepository.ListAsync();
+        var types = await GetCatalogTypesAsync();
 
         var items = types
             .Select(type => new SelectListItem() { Value = type.Id.ToString(), Text = type.Type })
@@ -134,4 +134,70 @@ public class CatalogViewModelService : ICatalogViewModelService
         }
 
     }
+
+    private async Task<List<CatalogBrand>> GetCatalogBrandsAsync()
+    {
+        try
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync("https://localhost:7167/api/catalog-brands");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var brandItems = JsonConvert.DeserializeObject<List<CatalogBrandDtoMicro>>(await response.Content.ReadAsStringAsync());
+
+
+               List<CatalogBrand> items = new();
+
+                foreach (var item in brandItems)
+                {
+                    CatalogBrand catalogBrand = new(item.BrandName);
+                    items.Add(catalogBrand);
+                }
+
+                return items;
+
+            }
+            else
+            {
+                return [];
+            }
+        }
+        catch (Exception ex)
+        {
+            return [];
+        }
+    }
+
+    private async Task<List<CatalogType>> GetCatalogTypesAsync()
+    {
+        try
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync("https://localhost:7167/api/catalog-types");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var brandItems = JsonConvert.DeserializeObject<List<CatalogTypeDtoMicro>>(await response.Content.ReadAsStringAsync());
+
+
+                List<CatalogType> items = new();
+
+                foreach (var item in brandItems)
+                {
+                    items.Add(new CatalogType(item.TypeName));
+                }
+
+                return items;
+
+            }
+            else
+            {
+                return [];
+            }
+        }
+        catch (Exception ex)
+        {
+            return [];
+        }
+    }
+
 }
