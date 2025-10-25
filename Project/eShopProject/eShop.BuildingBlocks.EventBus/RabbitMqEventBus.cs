@@ -4,96 +4,113 @@ using System.Text;
 using System.Text.Json;
 using Serilog;
 
-
-
-namespace eShop.BuildingBlocks.EventBus;
-
-public class RabbitMqEventBus : IEventBus
+namespace eShop.BuildingBlocks.EventBus
 {
-    private readonly ConnectionFactory _factory;
-
-    public RabbitMqEventBus(string hostName = "localhost", string user = "guest", string pass = "guest")
+    public class RabbitMqEventBus : IEventBus
     {
-        // Kørsel fra Docker → hostName = "rabbitmq"
-        // Kørsel fra Visual Studio → hostName = "localhost"
-        hostName ??= Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        private readonly ConnectionFactory _factory;
 
-        _factory = new ConnectionFactory
+        public RabbitMqEventBus(string hostName = "localhost", string user = "guest", string pass = "guest")
         {
-            HostName = hostName,
-            Port = 5672,
-            UserName = user,
-            Password = pass
-        };
-    }
+            // Docker → "rabbitmq", lokal udvikling → "localhost"
+            hostName ??= Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
 
-    // --- Sender besked ---
-    public void Publish<T>(string eventName, T message)
-    {
-        var maxRetries = 3;
-        var retryDelay = TimeSpan.FromSeconds(5);
+            _factory = new ConnectionFactory
+            {
+                HostName = hostName,
+                Port = 5672,
+                UserName = user,
+                Password = pass,
+                DispatchConsumersAsync = true,
+                AutomaticRecoveryEnabled = true,
+                NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
+            };
+        }
 
-        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        // --- Sender besked ---
+        public void Publish<T>(string eventName, T message)
         {
-            try
+            var maxRetries = 3;
+            var retryDelay = TimeSpan.FromSeconds(5);
+
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
             {
-                using var connection = _factory.CreateConnection();
-                using var channel = connection.CreateModel();
-
-                channel.QueueDeclare(queue: eventName,
-                                     durable: false,
-                                     exclusive: false,
-                                     autoDelete: false,
-                                     arguments: null);
-
-                var json = JsonSerializer.Serialize(message);
-                var body = Encoding.UTF8.GetBytes(json);
-
-                channel.BasicPublish(exchange: "",
-                                     routingKey: eventName,
-                                     basicProperties: null,
-                                     body: body);
-
-                Log.Information($"[Publish] Event '{eventName}' sent (attempt {attempt})");
-                break;
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"[Retry {attempt}] Failed to publish '{eventName}': {ex.Message}");
-                if (attempt == maxRetries)
+                try
                 {
-                    Log.Error($"[Error] Event '{eventName}' failed after {maxRetries} attempts");
-                    throw;
-                }
+                    using var connection = _factory.CreateConnection();
+                    using var channel = connection.CreateModel();
 
-                Thread.Sleep(retryDelay);
+                    // Opret exchange og queue (durable)
+                    channel.ExchangeDeclare(exchange: "amq.topic", type: "topic", durable: true);
+                    channel.QueueDeclare(queue: eventName, durable: true, exclusive: false, autoDelete: false);
+                    channel.QueueBind(queue: eventName, exchange: "amq.topic", routingKey: eventName);
+
+                    // Gør beskeden persistent
+                    var props = channel.CreateBasicProperties();
+                    props.Persistent = true;
+
+                    var json = JsonSerializer.Serialize(message);
+                    var body = Encoding.UTF8.GetBytes(json);
+
+                    channel.BasicPublish(exchange: "amq.topic",
+                                         routingKey: eventName,
+                                         basicProperties: props,
+                                         body: body);
+
+                    Log.Information($"[Publish] Event '{eventName}' sent successfully");
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning($"[Retry {attempt}] Failed to publish '{eventName}': {ex.Message}");
+                    if (attempt == maxRetries)
+                    {
+                        Log.Error($"[Error] Event '{eventName}' failed after {maxRetries} attempts");
+                        throw;
+                    }
+
+                    Thread.Sleep(retryDelay);
+                }
             }
         }
-    }
 
-
-
-    // --- Modtager besked ---
-    public void Subscribe<T>(string eventName, Action<T> handler)
-    {
-        var connection = _factory.CreateConnection();
-        var channel = connection.CreateModel();
-
-        channel.QueueDeclare(queue: eventName,
-                             durable: false,
-                             exclusive: false,
-                             autoDelete: false,
-                             arguments: null);
-
-        var consumer = new EventingBasicConsumer(channel);
-        consumer.Received += (model, ea) =>
+        // --- Modtager besked (Subscriber) ---
+        public void Subscribe<T>(string eventName, Action<T> handler)
         {
-            var json = Encoding.UTF8.GetString(ea.Body.ToArray());
-            var message = JsonSerializer.Deserialize<T>(json);
-            if (message != null)
-                handler(message);
-        };
+            //var connection = _factory.CreateConnection();
+            //var channel = connection.CreateModel();
 
-        channel.BasicConsume(queue: eventName, autoAck: true, consumer: consumer);
+            //channel.ExchangeDeclare(exchange: "amq.topic", type: "topic", durable: true);
+            //channel.QueueDeclare(queue: eventName, durable: true, exclusive: false, autoDelete: false);
+            //channel.QueueBind(queue: eventName, exchange: "amq.topic", routingKey: eventName);
+
+            //var consumer = new AsyncEventingBasicConsumer(channel);
+            //consumer.Received += async (model, ea) =>
+            //{
+            //    try
+            //    {
+            //        var json = Encoding.UTF8.GetString(ea.Body.ToArray());
+            //        var message = JsonSerializer.Deserialize<T>(json);
+            //        if (message != null)
+            //        {
+            //            handler(message);
+            //            Log.Information($"[Consume] Event '{eventName}' processed.");
+            //        }
+
+            //        channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Log.Error($"[Consume Error] {ex.Message}");
+            //        channel.BasicNack(ea.DeliveryTag, false, true); // requeue on failure
+            //    }
+
+            //    await Task.Yield();
+            //};
+
+            //channel.BasicConsume(queue: eventName, autoAck: false, consumer: consumer);
+
+            //Log.Information($"[Subscribe] Listening for '{eventName}' events...");
+        }
     }
 }

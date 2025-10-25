@@ -1,0 +1,20 @@
+﻿@page
+@model Microsoft.eShopWeb.Web.Pages.Basket.CheckoutMicroModel
+@{
+    ViewData["Title"] = "Checkout (Microservice)";
+}
+
+<h2>Checkout (Microservice Basket)</h2>
+
+@if (Model.BasketModel.Items.Any())
+{
+    <p>Your basket will be cleared on checkout.</p>
+    <form method="post">
+        <button class="btn esh-basket-checkout">[ Checkout (Micro) ]</button>
+    </form>
+}
+else
+{
+    <p>Your basket is empty.</p>
+    <a asp-page="/Basket/Index" class="btn esh-basket-checkout text-white">[ Continue Shopping ]</a>
+}

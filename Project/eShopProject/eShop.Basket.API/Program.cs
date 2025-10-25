@@ -97,11 +97,11 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 // --- Test subscriber (kan fjernes senere) ---
-var eventBus = app.Services.GetRequiredService<IEventBus>();
-eventBus.Subscribe<BasketCheckedOutIntegrationEvent>("basket.checkedout", evt =>
-{
-    Console.WriteLine($"[Subscriber] Basket {evt.BasketId} checked out by {evt.CustomerId} with total {evt.Total}");
-});
+//var eventBus = app.Services.GetRequiredService<IEventBus>();
+////eventBus.Subscribe<BasketCheckedOutIntegrationEvent>("basket.checkedout", evt =>
+////{
+////    Console.WriteLine($"[Subscriber] Basket {evt.BasketId} checked out by {evt.CustomerId} with total {evt.Total}");
+////});
 
 app.Run();
 

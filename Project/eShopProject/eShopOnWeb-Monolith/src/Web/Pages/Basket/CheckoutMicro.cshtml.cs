@@ -5,12 +5,16 @@ using Microsoft.eShopWeb.Web.ViewModels;
 
 namespace Microsoft.eShopWeb.Web.Pages.Basket;
 
-public class IndexModel : PageModel
+public class CheckoutMicroModel : PageModel
 {
     private readonly BasketMicroserviceViewModelService _basketMicro;
+
     public BasketViewModel BasketModel { get; private set; } = new();
 
-    public IndexModel(BasketMicroserviceViewModelService basketMicro) => _basketMicro = basketMicro;
+    public CheckoutMicroModel(BasketMicroserviceViewModelService basketMicro)
+    {
+        _basketMicro = basketMicro;
+    }
 
     public async Task OnGetAsync()
     {
@@ -18,23 +22,20 @@ public class IndexModel : PageModel
         BasketModel = await _basketMicro.GetBasketAsync(buyerId);
     }
 
-    public async Task<IActionResult> OnPostUpdateAsync(IEnumerable<BasketItemViewModel> items)
+    public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid) return Page();
-
         var buyerId = GetOrSetBasketCookieAndUserName();
-
-        var updated = new BasketViewModel { BuyerId = buyerId, Items = items.ToList() };
-        await _basketMicro.UpdateBasketAsync(updated);
-
-        BasketModel = await _basketMicro.GetBasketAsync(buyerId);
-        return RedirectToPage(); // viser opdaterede tal
+        await _basketMicro.CheckoutBasketAsync(buyerId);
+        return RedirectToPage("Success");
     }
 
     private string GetOrSetBasketCookieAndUserName()
     {
-        if (User.Identity?.IsAuthenticated == true) return User.Identity.Name!;
-        if (Request.Cookies.TryGetValue(Constants.BASKET_COOKIENAME, out var id)) return id;
+        if (User.Identity?.IsAuthenticated == true)
+            return User.Identity.Name!;
+
+        if (Request.Cookies.TryGetValue(Constants.BASKET_COOKIENAME, out var id))
+            return id;
 
         var userName = Guid.NewGuid().ToString();
         Response.Cookies.Append(Constants.BASKET_COOKIENAME, userName,

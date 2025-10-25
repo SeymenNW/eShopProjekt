@@ -19,7 +19,7 @@ public class BasketMicroserviceViewModelService
 
     public async Task<BasketViewModel> GetBasketAsync(string buyerId)
     {
-        var response = await _http.GetAsync($"api/Basket/{buyerId}");
+        var response = await _http.GetAsync($"basket/api/Basket/{buyerId}");
         if (!response.IsSuccessStatusCode)
             return new BasketViewModel { BuyerId = buyerId, Items = new() };
 
@@ -69,7 +69,7 @@ public class BasketMicroserviceViewModelService
         var json = JsonConvert.SerializeObject(dto);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await _http.PostAsync("api/Basket", content);
+        var response = await _http.PostAsync("basket/api/Basket", content);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -77,5 +77,28 @@ public class BasketMicroserviceViewModelService
             throw new Exception($"Basket update failed: {(int)response.StatusCode} {response.ReasonPhrase}\n{body}");
         }
     }
+
+    public async Task ClearBasketAsync(string buyerId)
+    {
+        var response = await _http.DeleteAsync($"basket/api/Basket/{buyerId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Basket clear failed: {(int)response.StatusCode} {response.ReasonPhrase}\n{body}");
+        }
+    }
+    public async Task CheckoutBasketAsync(string buyerId)
+    {
+        var json = JsonConvert.SerializeObject(new { CustomerId = buyerId });
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        var response = await _http.PostAsync("basket/api/Basket/checkout", content);
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Checkout failed: {(int)response.StatusCode} {response.ReasonPhrase}\n{body}");
+        }
+    }
+
 
 }

@@ -111,7 +111,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 // === Basket microservice integration ===
 builder.Services.AddHttpClient<Microsoft.eShopWeb.Web.Services.V2.BasketMicroserviceViewModelService>(c =>
 {
-    c.BaseAddress = new Uri("http://localhost:8080/basket/");
+    c.BaseAddress = new Uri("http://localhost:8080/");
     c.DefaultRequestHeaders.Accept.ParseAdd("application/json");
 });
 
