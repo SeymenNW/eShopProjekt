@@ -32,7 +32,9 @@ public class BasketService : IBasketService
                 cached.Id,
                 cached.CustomerId,
                 cached.Items.Select(i =>
-                    new BasketItemDto(i.ProductId, i.ProductName, i.Price, i.Quantity)).ToList());
+                    new BasketItemDto(i.ProductId, i.ProductName, i.Price, i.Quantity, i.PictureUrl)
+                ).ToList()
+            );
         }
 
         // 2️⃣ Hvis ikke i cache → hent fra DB
@@ -48,7 +50,9 @@ public class BasketService : IBasketService
             basket.Id,
             basket.CustomerId,
             basket.Items.Select(i =>
-                new BasketItemDto(i.ProductId, i.ProductName, i.Price, i.Quantity)).ToList());
+                new BasketItemDto(i.ProductId, i.ProductName, i.Price, i.Quantity, i.PictureUrl)
+            ).ToList()
+        );
     }
 
     public async Task UpsertAsync(string customerId, IEnumerable<BasketItemDto> items)
@@ -62,12 +66,12 @@ public class BasketService : IBasketService
             basket = await _db.Baskets.Include(b => b.Items)
                 .FirstOrDefaultAsync(b => b.CustomerId == customerId);
 
-            // 3️⃣ Hvis ingen kurv → opret ny og gem for at få Id
+            // 3️⃣ Hvis ingen kurv → opret ny
             if (basket == null)
             {
                 basket = new ShoppingBasket { CustomerId = customerId };
                 _db.Baskets.Add(basket);
-                await _db.SaveChangesAsync(); // 🔹 her genereres basket.Id i DB
+                await _db.SaveChangesAsync();
             }
         }
 
@@ -78,7 +82,8 @@ public class BasketService : IBasketService
             ProductName = i.ProductName,
             Price = i.Price,
             Quantity = i.Quantity,
-            ShoppingBasketId = basket.Id // 🔹 FK sættes her
+            PictureUrl = i.PictureUrl,  // ← NYT felt
+            ShoppingBasketId = basket.Id
         }).ToList();
 
         basket.SetItems(entityItems);

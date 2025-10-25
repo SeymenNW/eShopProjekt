@@ -4,6 +4,7 @@ using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
 using Microsoft.eShopWeb.Web.Interfaces;
 using Microsoft.eShopWeb.Web.Pages.Basket;
+using Newtonsoft.Json;
 
 namespace Microsoft.eShopWeb.Web.Services;
 
@@ -91,3 +92,4 @@ public class BasketViewModelService : IBasketViewModelService
         return counter;
     }
 }
+

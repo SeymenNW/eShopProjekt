@@ -29,14 +29,30 @@
                     var item = Model.BasketModel.Items[i];
                     <article class="esh-basket-items row">
                         <div>
-                            <section class="esh-basket-item esh-basket-item--middle col-lg-3 hidden-lg-down">
-                                <img class="esh-basket-image" src="@item.PictureUrl" />
+                            <section class="esh-basket-item esh-basket-item--middle col-lg-3 hidden-lg-down d-flex align-items-center" style="gap:10px;">
+                                <img class="esh-basket-image"
+                                     src="@item.PictureUrl"
+                                     alt="@item.ProductName"
+                                     style="width:70px;height:auto;object-fit:contain;border-radius:5px;" />
+                                <span>@item.ProductName</span>
                             </section>
-                            <section class="esh-basket-item esh-basket-item--middle col-xs-3">@item.ProductName</section>
+
+                           
+                            <section class="esh-basket-item esh-basket-item--middle col-xs-3 hidden-lg-down"></section>
                             <section class="esh-basket-item esh-basket-item--middle col-xs-2">$ @item.UnitPrice.ToString("N2")</section>
                             <section class="esh-basket-item esh-basket-item--middle col-xs-2">
-                                <input type="hidden" name="@("Items[" + i + "].Id")" value="@item.Id" />
-                                <input type="number" class="esh-basket-input" min="0" name="@("Items[" + i + "].Quantity")" value="@item.Quantity" />
+                                <!-- skjulte felter, så ProductName / PictureUrl / Price sendes i POST -->
+                                <input type="hidden" name="@($"Items[{i}].CatalogItemId")" value="@item.CatalogItemId" />
+                                <input type="hidden" name="@($"Items[{i}].ProductName")" value="@item.ProductName" />
+                                <input type="hidden" name="@($"Items[{i}].UnitPrice")" value="@item.UnitPrice" />
+                                <input type="hidden" name="@($"Items[{i}].PictureUrl")" value="@item.PictureUrl" />
+
+                                <!-- feltet brugeren ændrer -->
+                                <input type="number"
+                                       class="esh-basket-input"
+                                       min="0"
+                                       name="@($"Items[{i}].Quantity")"
+                                       value="@item.Quantity" />
                             </section>
                             <section class="esh-basket-item esh-basket-item--middle esh-basket-item--mark col-xs-2">$ @Math.Round(item.Quantity * item.UnitPrice, 2).ToString("N2")</section>
                         </div>
