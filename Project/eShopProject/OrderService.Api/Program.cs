@@ -3,6 +3,7 @@ using OrderService.Domain.Abstractions;
 using OrderService.Infrastructure.EfCore;
 using OrderService.Infrastructure.Repositories;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // DbContext → PostgreSQL
@@ -11,6 +12,7 @@ builder.Services.AddDbContext<OrderDbContext>(opt =>
 // Uncomment if you want snake_case tables/columns automatically:
 //.UseSnakeCaseNamingConvention()
 );
+builder.Services.AddHostedService<OrderService.Api.Services.RabbitMqListenerService>();
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddControllers();
