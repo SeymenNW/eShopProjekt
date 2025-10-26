@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OrderService.Api.Messaging;
 using OrderService.Domain.Abstractions;
 using OrderService.Infrastructure.EfCore;
 using OrderService.Infrastructure.Repositories;
@@ -12,10 +13,12 @@ builder.Services.AddDbContext<OrderDbContext>(opt =>
 //.UseSnakeCaseNamingConvention()
 );
 
+
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddHostedService<RabbitMqOrderConsumer>();
 
 var app = builder.Build();
 
