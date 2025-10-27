@@ -6,7 +6,7 @@ using RabbitMQ.Client;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +14,8 @@ internal class Program
 
         builder.Services.AddDbContext<CatalogDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+        
+        
 
         builder.Services.AddSingleton<RabbitMQ.Client.IConnectionFactory>(_ =>
             new ConnectionFactory { HostName = "localhost" });
@@ -35,6 +37,14 @@ internal class Program
         app.UseAuthorization();
 
         app.MapControllers();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+            await context.Database.MigrateAsync();
+            await context.Database.EnsureCreatedAsync();
+
+        }
 
         app.Run();
     }

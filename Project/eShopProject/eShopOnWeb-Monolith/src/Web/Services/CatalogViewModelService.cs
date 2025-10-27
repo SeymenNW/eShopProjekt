@@ -112,7 +112,7 @@ public class CatalogViewModelService : ICatalogViewModelService
 
     private async Task<List<CatalogItemViewModel>> GetCatalogItemsAsync()
     {
-        HttpResponseMessage response = await _httpClient.GetAsync("https://localhost:7167/api/catalog-items");
+        HttpResponseMessage response = await _httpClient.GetAsync("http://localhost:5025/api/catalog-items");
 
         if (response.IsSuccessStatusCode)
         {
@@ -139,7 +139,7 @@ public class CatalogViewModelService : ICatalogViewModelService
     {
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync("https://localhost:7167/api/catalog-brands");
+            HttpResponseMessage response = await _httpClient.GetAsync("http://localhost:5025/api/catalog-brands");
 
             if (response.IsSuccessStatusCode)
             {
@@ -172,7 +172,7 @@ public class CatalogViewModelService : ICatalogViewModelService
     {
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync("https://localhost:7167/api/catalog-types");
+            HttpResponseMessage response = await _httpClient.GetAsync("http://localhost:5025/api/catalog-types");
 
             if (response.IsSuccessStatusCode)
             {

@@ -1,0 +1,59 @@
+﻿services:
+  gateway.api:
+    image: gateway.api
+    container_name: gateway-api
+    build:
+      context: .
+      dockerfile: Gateway.Api/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=eshop-db;Port=5432;Database=gatewaydb;Username=postgres;Password=postgres-adil-123
+    depends_on:
+      - eshop-db
+
+  eshop.basket.api:
+    image: eshop.basket.api
+    container_name: basket-service
+    build:
+      context: .
+      dockerfile: eShop.Basket.API/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=eshop-db;Port=5432;Database=basketdb;Username=postgres;Password=postgres-adil-123
+    depends_on:
+      - eshop-db
+
+  eshop.catalog.api:
+    image: eshop.catalog.api
+    container_name: catalog-service
+    build:
+      context: .
+      dockerfile: eShop.Catalog.API/Dockerfile
+    ports:
+        - "5025:5025"
+        - "7167:7167"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=eshop-db;Port=5432;Database=catalogdb;Username=postgres;Password=postgres-adil-123
+    depends_on:
+      - eshop-db
+
+#  orderservice.api:
+#    image: orderservice.api
+#    container_name: order-service
+#    build:
+#      context: .
+#      dockerfile: OrderService.Api/Dockerfile
+#    environment:
+#      - ConnectionStrings__DefaultConnection=Host=eshop-db;Port=5432;Database=ordersdb;Username=postgres;Password=postgres-adil-123
+#    depends_on:
+#      - eshop-db
+
+  eshop-db:
+    container_name: eshop-database
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: postgres-adil-123 
+    ports:
+      - 5432:5432
+
+networks:
+  default:
+    name: eshop-network
