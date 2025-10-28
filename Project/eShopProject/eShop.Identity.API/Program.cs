@@ -17,9 +17,9 @@ internal partial class Program
             options.UseNpgsql(builder.Configuration.GetConnectionString("IdentityConnection"));  
         });
 
-        builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+        builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
         {
-            options.SignIn.RequireConfirmedAccount = true;
+            options.SignIn.RequireConfirmedAccount = false;
         })
       .AddEntityFrameworkStores<AppDbContext>();
 

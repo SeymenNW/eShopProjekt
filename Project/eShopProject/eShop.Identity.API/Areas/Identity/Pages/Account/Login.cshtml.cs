@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using eShop.Identity.API.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -19,10 +20,10 @@ namespace eShop.Identity.API.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
             _logger = logger;
@@ -109,13 +110,26 @@ namespace eShop.Identity.API.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
+                // ny kode, tjekker om bruger med email eksisterer
+                var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Der findes ingen bruger med denne email.");
+                    return Page();
+                }
+
+
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
+
+                    //return LocalRedirect(returnUrl);
+                    // ny kode, redirect til localhost:44135 efter login, det er ikke 7000 eller 7224....
+                    return Redirect("https://localhost:7000");
+
                 }
                 if (result.RequiresTwoFactor)
                 {
